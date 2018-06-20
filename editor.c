@@ -48,6 +48,30 @@ void enable_raw_mode()
 	atexit(disable_raw_mode); //make sure that original settings restored when program exits
 }
 
+char read_keypress()
+{
+	char c;
+	while(read(STDIN_FILENO, &c, 1) != -1);
+	return c;
+}
+
+/************ format input **************/
+void process_keypress()
+{
+	char c = read_keypress();
+
+	switch(c)
+	{
+		case 'q':
+			exit(0);
+			break;
+		default:
+			printf("%d\n", c);
+			break;
+	}
+}
+
+
 
 /************ executing code **************/
 int main()
@@ -72,6 +96,7 @@ int main()
 	}
 	*/
 
+	/*
 	//keep looping through
 	while(1)
 	{
@@ -84,6 +109,11 @@ int main()
 			printf("%d ('%c')", c, c);
 		}
 		if(c == 'q') break;
+	}*/
+
+	while(1)
+	{
+		process_keypress();
 	}
 	return 0;
 }
