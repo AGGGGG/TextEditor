@@ -7,6 +7,7 @@
 #include <sys/ioctl.h> //for ioctl
 #include <ctype.h> //like cctype (for character operations)
 #include <stdio.h> //for printf
+#include <string.h> //for memcpy
 
 
 /************ DEFINES **************/
@@ -25,6 +26,33 @@ struct Terminal_Settings
 };
 
 struct Terminal_Settings original;
+
+struct abuf
+{
+	char *b;
+	int length;
+};
+
+struct abuf ab;
+
+
+/************* ABUF FUNCTIONS **************/
+void abAppend(struct abuf *ab, char *str, int str_length)
+{
+	if(str_length == 0) return;
+
+	char *new_str = realloc(ab, ab->length + str_length);
+	memcpy(&new_str[ab->length], str, str_length);
+	ab->b = new_str;
+	ab->length += str_length;
+
+}
+
+void abFree(struct abuf *ab)
+{
+	free(ab->b);
+}
+
 
 
 /************ TERMINAL SETTINGS AND UTIL FUNCTIONS **************/
