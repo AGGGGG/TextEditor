@@ -40,7 +40,8 @@ struct abuf ab;
 //basically a constructor
 void init_abuf(struct abuf* ab)
 {
-	ab->b = "";
+	ab->b = (char *)malloc(15);
+	//ab->b = "";
 	ab->length = 0;
 }
 
@@ -48,7 +49,8 @@ void abAppend(struct abuf *ab, char *str, int str_length)
 {
 	if(str_length == 0) return;
 
-	char *new_str = realloc(ab, ab->length + str_length);
+	int old_length = ab->length;
+	char *new_str = realloc(ab, old_length + str_length);
 	memcpy(&new_str[ab->length], str, str_length);
 	ab->b = new_str;
 	ab->length += str_length;
