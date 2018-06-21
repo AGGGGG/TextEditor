@@ -37,6 +37,13 @@ struct abuf ab;
 
 
 /************* ABUF FUNCTIONS **************/
+//basically a constructor
+void init_abuf(struct abuf* ab)
+{
+	ab->b = "";
+	ab->length = 0;
+}
+
 void abAppend(struct abuf *ab, char *str, int str_length)
 {
 	if(str_length == 0) return;
@@ -107,7 +114,8 @@ char read_keypress()
 
 int get_cursor_pos(int *rows, int *cols)
 {
-	if(write(STDOUT_FILENO, "\x1b[6n", 4) != 4) return -1;
+	//if(write(STDOUT_FILENO, "\x1b[6n", 4) != 4) return -1;
+	abAppend(&ab, "\x1b[6n", 4);
 	
 	//now, read what the terminal has printed to us to get cursor pos
 	char buffer[50]; //size should provide more than enough characters
@@ -129,7 +137,8 @@ int get_window_size(int *rows, int *cols)
 	struct winsize ws; //window size struct
 	if(ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1)
 	{
-		if(write(STDOUT_FILENO, "\x1b[999C;\x1b[999B", 12) == -1) return -1;
+		//if(write(STDOUT_FILENO, "\x1b[999C;\x1b[999B", 12) == -1) return -1;
+		abAppend(&ab, "\x1b[999C;\x1b[999B", 12);
 		return get_cursor_pos(rows, cols);
 
 	}
@@ -145,24 +154,33 @@ int get_window_size(int *rows, int *cols)
 /************ FORMAT OUTPUT**************/
 void clear_screen()
 {
-	write(STDOUT_FILENO, "\x1b[2J", 4);
-	write(STDOUT_FILENO, "\x1b[H", 3);
+	init_abuf(&ab);
+	//write(STDOUT_FILENO, "\x1b[2J", 4);
+	abAppend(&ab, "\x1b[2J", 4);
+	abAppend(&ab, "\x1b[H", 4);
+	//write(STDOUT_FILENO, "\x1b[H", 3);
+
+	write(STDOUT_FILENO, ab.b, ab.length);
+	abFree(&ab);
 }
 
 void draw_rows()
 {
 	for(int row = 0; row < original.rows; row++)
 	{
-		write(STDOUT_FILENO, "$", 1);
+		//write(STDOUT_FILENO, "$", 1);
+		abAppend(&ab, "$", 1);
 
 		if(row < original.rows-1)
 		{
-			write(STDOUT_FILENO,"\n", 1);
+			//write(STDOUT_FILENO,"\n", 1);
+			abAppend(&ab, "\n", 1);
 		}
 	}
 
 	//return cursor to original spot
-	write(STDOUT_FILENO, "\x1b[H", 4);
+	//write(STDOUT_FILENO, "\x1b[H", 3);
+	abAppend(&ab, "\x1b[H", 3);
 }
 
 void init_screen()
